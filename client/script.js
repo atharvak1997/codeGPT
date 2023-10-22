@@ -65,7 +65,6 @@ const handleSubmit = async (e) => {
 
   // User's chatStripe
     chatContainer.innerHTML += chatStripe(false, data.get('prompt'));
-    var myDropzone = new Dropzone("prompt", { url: "/file/upload/"})
 
   form.reset();
 
