@@ -20,11 +20,10 @@ function loader(element) {
 
 function typeText(element, text) {
   let index = 0;
-
   let interval = setInterval(() => {
     if (index < text.length) {
       element.innerHTML += text.charAt(index);
-      inner += 1;
+      index += 1;
     }
     else {
       clearInterval(interval);
@@ -65,27 +64,60 @@ const handleSubmit = async (e) => {
   const data = new FormData(form);
 
   // User's chatStripe
-  chatContainer.innerHTML += chatStripe(false, data.get('prompt'));
+    chatContainer.innerHTML += chatStripe(false, data.get('prompt'));
+  
 
   form.reset();
 
   // bot's chatStripe
   const uniqueID = generateUniqueID();
-  chatContainer.innerHTML += chatStripe(true, ' ', uniqueID);
+    chatContainer.innerHTML += chatStripe(true, ' ', uniqueID);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
 
-  chatContainer.scrollTop = chatContainer.scrollHeight;
-
-  const messageDiv = document.getElementById(uniqueID);
+    const messageDiv = document.getElementById(uniqueID);
   
-  loader(messageDiv);
+    loader(messageDiv);
+
+    // Fetch data from server
+
+    const response = await fetch('http://localhost:5000', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        prompt: data.get('prompt')
+      })
+    })
+    clearInterval(loadInterval);
+    messageDiv.innerHTML = '';
+
+    if(response.ok) {
+      const data = await response.json();
+      const parsedData = data.bot;
+
+      typeText(messageDiv, parsedData)
+    }
+    else {
+      const err = await response.text();
+
+      messageDiv.innerHTML = "Something is wrong";
+
+      alert(err);
+    }
+  
+
+  
 }
 
-form.addEventListener('submit', handleSubmit);
-form.addEventListener('keyup', (e) => {
+  form.addEventListener('submit', handleSubmit);
+  form.addEventListener('keyup', (e) => {
   if (e.keyCode === 13) {
     handleSubmit(e);
   }
 })
+
+
 
 
 
