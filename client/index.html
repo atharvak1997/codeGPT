@@ -13,8 +13,13 @@
       <form>
         <textarea name="prompt" rows="1" cols="1" placeholder="Ask CodeGPT"></textarea>
         <button type="submit"><img src="assets/send.svg"></button>
+        <div class="dropzone" id="dropzone">
+          <!-- <img class="dropzone-icon" src="https://wickedev.com/wp-content/uploads/2021/02/cloud-uploading.png" /> -->
+          <input type="file" name="files" class="dropzone-input" multiple />
+        </div>
+      </div>
       </form>
-    </div>
+      
     <script type="module" src="/script.js"></script>
   </body>
 </html>

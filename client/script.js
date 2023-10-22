@@ -4,6 +4,33 @@ import user from "./assets/user.svg";
 const form = document.querySelector('form');
 const chatContainer = document.querySelector('#chat_container')
 
+var dropzone = document.getElementById('dropzone');
+var dropzone_input = dropzone.querySelector('.dropzone-input');
+
+
+dropzone_input.addEventListener('change', function(e) {
+  var files = e.target.files; // Get the selected files
+
+  for (var i = 0; i < files.length; i++) {
+    var file = files[i];
+
+    // Access file information
+    var fileName = file.name; // File name
+    var fileType = file.type; // File type (MIME type)
+    var fileSize = file.size; // File size in bytes
+
+    // Log the file information
+    console.log('File Name:', fileName);
+    console.log('File Type:', fileType);
+    console.log('File Size (bytes):', fileSize);
+
+    // You can also perform other operations with the file here
+
+    // If you have a specific property you want to access, you can do so using file.propertyName
+  }
+});
+
+
 let loadInterval;
 
 function loader(element) {
