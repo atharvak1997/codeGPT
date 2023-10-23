@@ -1,5 +1,6 @@
 import bot from './assets/bot.svg';
 import user from "./assets/user.svg";
+import { useCompletion } from "ai/react";
 
 const form = document.querySelector('form');
 const chatContainer = document.querySelector('#chat_container')
@@ -8,7 +9,7 @@ var dropzone = document.getElementById('dropzone');
 var dropzone_input = dropzone.querySelector('.dropzone-input');
 
 
-dropzone_input.addEventListener('change', function(e) {
+dropzone_input.addEventListener('change', async function(e) {
   var files = e.target.files; // Get the selected files
 
   for (var i = 0; i < files.length; i++) {
@@ -25,6 +26,46 @@ dropzone_input.addEventListener('change', function(e) {
     console.log('File Size (bytes):', fileSize);
 
     // You can also perform other operations with the file here
+
+      // When a file is dropped in the dropzone, call the `/api/addData` API to train our bot on a new PDF File
+    
+        if (file.type !== "application/pdf") {
+          alert("Please upload a PDF");
+          return;
+        }
+    
+        const formData = new FormData();
+        formData.set("file", file);
+
+        const response = await fetch('https://codegpt-3w0l.onrender.com/addData', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            formData
+          })
+    })
+    
+        const body = await response.json();
+    
+        if (body.success) {
+          alert("Data added successfully");
+        }
+    
+      // Vercel AI hook for generating completions through an AI model
+      const {
+        completion,
+        input,
+        isLoading,
+        handleInputChange,
+        handleSubmit,
+      } = useCompletion({
+        api: "/api/chat",
+      });
+    
+      console.log(completion);
+
 
     // If you have a specific property you want to access, you can do so using file.propertyName
   }
