@@ -32,7 +32,7 @@ dropzone_input.addEventListener('change', async function(e) {
         //   console.log(pair[0]+', '+pair[1]);
         // }
 
-        const resp = fetch('https://codegpt-3w0l.onrender.com/addData', {
+        const resp = fetch('http://localhost:5000/addData', {
           method: 'POST',
           body: formData,
           mode:'no-cors'

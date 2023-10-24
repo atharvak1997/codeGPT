@@ -14,7 +14,7 @@ import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 var router = express.Router();
 import multer from 'multer';
 import os from 'os';
-const upload = multer({ dest: "assets/" });
+const upload = multer({ dest: os.tmpdir()});
 
 
 dotenv.config();
@@ -70,9 +70,12 @@ app.post('/', async (request, response) => {
 
 app.post("/addData", upload.array("file"), uploadFiles);
 async function uploadFiles(req, res) {
-
+    const pinecone = new Pinecone({
+        apiKey: process.env.PINECONE_API_KEY || "",
+      environment: process.env.PINECONE_ENVIRONMENT,
+    });
     // Use the PDFLoader to load the PDF and split it into smaller documents
-
+    console.log(req.files[0].path);
     const pdfLoader = new PDFLoader(req.files[0].path);
     const rawDocs = await pdfLoader.load();
 
@@ -83,10 +86,7 @@ async function uploadFiles(req, res) {
       const docs = await textSplitter.splitDocuments(rawDocs);
     
     // Initialize the Pinecone client
-    const pinecone = new Pinecone({
-        apiKey: process.env.PINECONE_API_KEY || "",
-      environment: process.env.PINECONE_ENVIRONMENT,
-    });
+    
     // console.log(docs.entries());
     
     const index = pinecone.Index(process.env.PINECONE_INDEX_NAME);
