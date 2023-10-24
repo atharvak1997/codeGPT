@@ -21,9 +21,14 @@ dotenv.config();
 const openai = new OpenAI({
     apiKey: process.env.OPEN_API_KEY,
   });
+const allowedOrigin = 'https://code-gpt-iota.vercel.app/';
 
 const app = express();
-app.use(cors());
+app.use(cors(
+    {
+        origin: allowedOrigin,
+      }
+));
 app.use(express.json());
 router.use(cors());
 app.use(express.urlencoded({ extended: true }));
