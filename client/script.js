@@ -1,6 +1,8 @@
 import bot from './assets/bot.svg';
 import user from "./assets/user.svg";
 import { useCompletion } from "ai/react";
+import React from 'react';
+import ReactDOM from 'react-dom';
 
 const form = document.querySelector('form');
 const chatContainer = document.querySelector('#chat_container')
@@ -8,23 +10,15 @@ const chatContainer = document.querySelector('#chat_container')
 var dropzone = document.getElementById('dropzone');
 var dropzone_input = dropzone.querySelector('.dropzone-input');
 
+import fs from 'fs'
+import axios from 'axios';
+import FormData from 'form-data';
+
 
 dropzone_input.addEventListener('change', async function(e) {
   var files = e.target.files; // Get the selected files
 
-  for (var i = 0; i < files.length; i++) {
-    var file = files[i];
-
-    // Access file information
-    var fileName = file.name; // File name
-    var fileType = file.type; // File type (MIME type)
-    var fileSize = file.size; // File size in bytes
-
-    // Log the file information
-    console.log('File Name:', fileName);
-    console.log('File Type:', fileType);
-    console.log('File Size (bytes):', fileSize);
-
+    var file = files[0];
     // You can also perform other operations with the file here
 
       // When a file is dropped in the dropzone, call the `/api/addData` API to train our bot on a new PDF File
@@ -33,44 +27,41 @@ dropzone_input.addEventListener('change', async function(e) {
           alert("Please upload a PDF");
           return;
         }
-    
-        const formData = new FormData();
-        formData.set("file", file);
+        var formData = new FormData();
+        formData.append("file", file);
+        console.log(file);
+        // for(var pair of formData.entries()) {
+        //   console.log(pair[0]+', '+pair[1]);
+        // }
 
-        const response = await fetch('https://codegpt-3w0l.onrender.com/addData', {
+        const resp = fetch('http://localhost:5000/addData', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            formData
-          })
-    })
-    
-        const body = await response.json();
-    
-        if (body.success) {
-          alert("Data added successfully");
-        }
-    
-      // Vercel AI hook for generating completions through an AI model
-      const {
-        completion,
-        input,
-        isLoading,
-        handleInputChange,
-        handleSubmit,
-      } = useCompletion({
-        api: "/api/chat",
-      });
-    
-      console.log(completion);
+          body: formData,
+          
+          });
 
-
+    if (resp.status === 200) {
+      return 'Upload complete';
+    } 
+    //     const response = await fetch('http://localhost:5000/addData', {
+    //       method: 'POST',
+    //       headers: {
+    //         'Content-Type': 'application/json'
+    //       },
+    //       body: formData
+    // })
+    
+        // const body = await response.json();
+    
+        // if (body.success) {
+        //   alert("Data added successfully");
+        // }
+    
+  
+        
     // If you have a specific property you want to access, you can do so using file.propertyName
-  }
-});
 
+});
 
 let loadInterval;
 
@@ -184,8 +175,62 @@ const handleSubmit = async (e) => {
   }
 })
 
+// async function useCompletion({
+//   api,
+//   id,
+//   initialCompletion,
+//   initialInput,
+//   credentials,
+//   headers,
+//   body,
+//   onResponse,
+//   onFinish,
+//   onError,
+// }) {
+//   try {
+//     const requestConfig = {
+//       method: 'POST', // Set your HTTP method (e.g., GET, POST, etc.)
+//       headers: {
+//         'Content-Type': 'application/json', // Set your desired content type
+//         ...headers, // Add custom headers if provided
+//       },
+//       body: JSON.stringify(body), // Convert the request body to JSON
+//     };
 
+//     // If you need to include credentials (e.g., for authentication)
+//     if (credentials) {
+//       requestConfig.headers['Authorization'] = `Basic ${btoa(
+//         `${credentials.username}:${credentials.password}`
+//       )}`;
+//     }
 
+//     // Make the API request using the fetch API
+//     const response = await fetch(`${api}/your-endpoint`, requestConfig);
 
+//     // Handle the response or call the onResponse callback
+//     if (onResponse) {
+//       onResponse(response);
+//     }
 
- 
+//     // Parse the response JSON
+//     const data = await response.json();
+
+//     // You can do more processing here if needed
+
+//     // Call the onFinish callback if provided
+//     if (onFinish) {
+//       onFinish();
+//     }
+
+//     return data;
+//   } catch (error) {
+//     // Handle errors or call the onError callback
+//     if (onError) {
+//       onError(error);
+//     }
+
+//     // You can handle errors or throw them if needed
+
+//     throw error;
+//   }
+// }

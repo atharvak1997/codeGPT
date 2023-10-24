@@ -1,7 +1,20 @@
-import express, { request, response } from 'express';
+import express, { raw, request, response } from 'express';
 import * as dotenv from 'dotenv';
 import cors from 'cors';
 import OpenAI from "openai";
+import { Pinecone } from "@pinecone-database/pinecone"; 
+import { PineconeStore } from "langchain/vectorstores/pinecone";
+import { PDFLoader } from "langchain/document_loaders/fs/pdf";
+import { OpenAIEmbeddings } from "langchain/embeddings/openai";
+import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
+
+
+
+var router = express.Router();
+import multer from 'multer';
+import os from 'os';
+const upload = multer({ dest: "assets/" });
+
 
 dotenv.config();
 const openai = new OpenAI({
@@ -10,8 +23,10 @@ const openai = new OpenAI({
 
 const app = express();
 app.use(cors());
-app.use(express.json({ limit: '10mb' }));
-
+app.use(express.json());
+router.use(cors());
+app.use(express.urlencoded({ extended: true }));
+var filepath = 'assets/';
 app.get('/', async (request, response) => {
     response.status(200).send({
         message: 'Hello from CodeGPT',
@@ -47,41 +62,77 @@ app.post('/', async (request, response) => {
 });
 
 
-app.get('/addData', async (request, response) => {
-    // Extract FormData from the request
-    const data = await request.formData();
-    // Extract the uploaded file from the FormData
-    const file = data.get("file");
-  
-    // Make sure file exists
-    if (!file) {
-      return response.json({ success: false, error: "No file found" });
-    }
-  
-    // Make sure the file is a PDF
-    if (file.type !== "application/pdf") {
-      return response.json({ success: false, error: "Invalid file type" });
-    }
-  
+app.post("/addData", upload.array("file"), uploadFiles);
+async function uploadFiles(req, res) {
+
     // Use the PDFLoader to load the PDF and split it into smaller documents
-    const pdfLoader = new PDFLoader(file);
-    const splitDocuments = await pdfLoader.loadAndSplit();
-  
+
+    const pdfLoader = new PDFLoader(req.files[0].path);
+    const rawDocs = await pdfLoader.load();
+
+    const textSplitter = new RecursiveCharacterTextSplitter({
+        chunkSize: 1000,
+        chunkOverlap: 200,
+      });
+      const docs = await textSplitter.splitDocuments(rawDocs);
+    
     // Initialize the Pinecone client
-    const pineconeClient = new PineconeClient();
-    await pineconeClient.init({
-      apiKey: process.env.PINECONE_API_KEY || "",
-      environment: "us-east-1-aws",
+    const pinecone = new Pinecone({
+        apiKey: process.env.PINECONE_API_KEY || "",
+      environment: process.env.PINECONE_ENVIRONMENT,
     });
-    const pineconeIndex = pineconeClient.Index(process.env.PINECONE_INDEX_NAME);
-  
+    // console.log(docs.entries());
+    
+    const index = pinecone.Index(process.env.PINECONE_INDEX_NAME);
+    const embeddings = new OpenAIEmbeddings();
+
     // Use Langchain's integration with Pinecone to store the documents
-    await PineconeStore.fromDocuments(splitDocuments, new OpenAIEmbeddings(), {
-      pineconeIndex,
-    });
+    await PineconeStore.fromDocuments(docs, embeddings, {
+        pineconeIndex: index,
+        textKey: 'text',
+      });
+
+    
+}
+
+
+// app.post('/addData', upload.single('file'), (req,res)=> {
+//     // Extract FormData from the request
+//     const file = req.file;
+//     // Extract the uploaded file from the FormData
+//     // const file = data.get("file");
+//     console.log(file);
+//     res.sendStatus(200);
+//     // Make sure file exists
+//     if (!file) {
+//       return response.json({ success: false, error: "No file found" });
+//     }
   
-    return response.json({ success: true });
-  }
-  );
+//     // Make sure the file is a PDF
+//     if (file.type !== "application/pdf") {
+//       return response.json({ success: false, error: "Invalid file type" });
+//     }
+  
+//     // Use the PDFLoader to load the PDF and split it into smaller documents
+//     const pdfLoader = new PDFLoader(file);
+//     const splitDocuments = pdfLoader.loadAndSplit();
+  
+//     // Initialize the Pinecone client
+//     const pineconeClient = new PineconeClient();
+//     pineconeClient.init({
+//       apiKey: process.env.PINECONE_API_KEY || "",
+//       environment: "gcp-starter",
+//     });
+//     const pineconeIndex = pineconeClient.Index(process.env.PINECONE_INDEX_NAME);
+  
+//     // Use Langchain's integration with Pinecone to store the documents
+//     PineconeStore.fromDocuments(splitDocuments, new OpenAIEmbeddings(), {
+//       pineconeIndex,
+//     });
+  
+//     return response.json({ success: true });
+//   }
+//   );
+  export default router;
 
 app.listen(5000, () => console.log('Server is running on port http://localhost:5000'));
