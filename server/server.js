@@ -92,8 +92,15 @@ async function uploadFiles(req, res) {
         pineconeIndex: index,
         textKey: 'text',
       });
-
-    
+      
+      const myOptions = {
+        status : 200,
+        headers : {
+            "Access-Control-Allow-Origin" : "*"
+        }
+    }
+    // const myResponse = new Response(myOptions)
+    // return myResponse;
 }
 
 

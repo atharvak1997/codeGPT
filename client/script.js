@@ -35,11 +35,9 @@ dropzone_input.addEventListener('change', async function(e) {
         const resp = fetch('https://codegpt-3w0l.onrender.com/addData', {
           method: 'POST',
           body: formData,
-          headers: {
-                    'Access-Control-Allow-Origin': '*'
-                  },
+          mode:'no-cors'
           });
-
+          console.log(resp)
     if (resp.status === 200) {
       return 'Upload complete';
     } 
