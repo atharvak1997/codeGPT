@@ -7,7 +7,10 @@ import { PineconeStore } from "langchain/vectorstores/pinecone";
 import { PDFLoader } from "langchain/document_loaders/fs/pdf";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
-
+import { ReadableStream } from "web-streams-polyfill/polyfill";
+if (typeof globalThis.ReadableStream === "undefined") {
+  globalThis.ReadableStream = ReadableStream;
+}
 
 
 var router = express.Router();
