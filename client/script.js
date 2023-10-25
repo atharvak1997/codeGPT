@@ -43,6 +43,7 @@ dropzone_input.addEventListener('change', async function(e) {
           .then(response => {
             // Handle the response
             console.log(response)
+            return response.json();
           })
           .catch(error => {
             console.error(error);
