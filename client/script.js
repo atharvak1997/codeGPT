@@ -39,8 +39,15 @@ dropzone_input.addEventListener('change', async function(e) {
           headers: {
             "Access-Control-Allow-Origin" : "*"
           }
+          })
+          .then(response => {
+            // Handle the response
+            console.log(response)
+          })
+          .catch(error => {
+            console.error(error);
           });
-          console.log(resp)
+          
     if (resp.status === 200) {
       return 'Upload complete';
     } 
