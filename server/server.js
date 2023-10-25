@@ -26,7 +26,7 @@ const allowedOrigin = 'https://code-gpt-iota.vercel.app/';
 const app = express();
 app.use(cors(
     {
-        origin: allowedOrigin,
+        origin: '*',
       }
 ));
 app.use(express.json());
