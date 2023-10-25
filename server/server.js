@@ -96,6 +96,9 @@ async function uploadFiles(req, res) {
     await PineconeStore.fromDocuments(docs, embeddings, {
         pineconeIndex: index,
         textKey: 'text',
+        headers: {
+            "Access-Control-Allow-Origin" : "*"
+        }
       });
       
       const myOptions = {
