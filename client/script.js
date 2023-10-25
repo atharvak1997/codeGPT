@@ -39,14 +39,6 @@ dropzone_input.addEventListener('change', async function(e) {
           headers: {
             "Access-Control-Allow-Origin" : "*"
           }
-          })
-          .then(response => {
-            // Handle the response
-            console.log(response)
-            return response.json();
-          })
-          .catch(error => {
-            console.error(error);
           });
           
     if (resp.status === 200) {
