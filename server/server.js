@@ -70,6 +70,7 @@ app.post('/', async (request, response) => {
 
 app.post("/addData", upload.array("file"), uploadFiles);
 async function uploadFiles(req, res) {
+    try {
     const pinecone = new Pinecone({
         apiKey: process.env.PINECONE_API_KEY || "",
       environment: process.env.PINECONE_ENVIRONMENT,
@@ -101,12 +102,14 @@ async function uploadFiles(req, res) {
         }
       });
       
-      const myOptions = {
-        status : 200,
-        headers : {
-            "Access-Control-Allow-Origin" : "*"
-        }
-    }
+      res.status(200).json({ success: true });
+    } catch (error) {
+        // Handle the error
+        console.error(error);
+    
+        // Respond with an error message or appropriate status code
+        res.status(500).json({ success: false, error: "Internal server error" });
+      }
     // const myResponse = new Response(myOptions)
     // return myResponse;
 }
